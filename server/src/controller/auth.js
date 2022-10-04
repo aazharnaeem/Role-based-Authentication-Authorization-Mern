@@ -7,15 +7,15 @@ dotenv.config({ path: path.resolve(__dirname, '../config/.env') })
 
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
+// console.log(TOKEN_SECRET)
 const register = AsyncHandler(async (req, res) => {
 
 
-    const { firstName, lastName, email, password} = req.body;
+    const { firstName, lastName, email, password, role } = req.body;
 
     const exUser = await user.isEmailTaken(email);
 
     if (exUser) {
-        // return next(new Errorhandler('email already taken', 400))
         return res.status(401).send({ message: 'email already taken', sucess: false })
     };
 
@@ -23,11 +23,19 @@ const register = AsyncHandler(async (req, res) => {
         firstName,
         lastName,
         email,
-        password
+        password,
+        role
     })
     newUser.save()
 
-    return res.status(200).send({ message: 'account created Sucessfully', sucess: true });
+    const token = jwt.sign({
+        id: newUser.id,
+        role: newUser.role
+    },
+        TOKEN_SECRET
+    )
+
+    return res.status(200).send({ role: role, token: token, message: 'account created Sucessfully', sucess: true });
 });
 
 const login = AsyncHandler(async (req, res) => {
@@ -35,7 +43,7 @@ const login = AsyncHandler(async (req, res) => {
     const { email, password } = req.body;
     const exUser = await user.findOne({ email: email });
     if (!exUser) {
-        return res.status(404).send({ message: 'user not found', sucess: false })
+        return res.status(404).send({ message: 'Invalid Email / Password', sucess: false })
     }
 
     const validate = await user.validatePassword(password, exUser.password);
@@ -46,12 +54,13 @@ const login = AsyncHandler(async (req, res) => {
 
     // sign Token , Send Token
     const token = jwt.sign({
-        id: exUser.id
+        id: exUser.id,
+        role: exUser.role
     },
         TOKEN_SECRET
     )
 
-    return res.status(200).send({ token: token, message: "login sucess", sucess: true });
+    return res.status(200).send({ role: exUser.role, token: token, message: "login sucess", sucess: true });
 });
 
 module.exports = {

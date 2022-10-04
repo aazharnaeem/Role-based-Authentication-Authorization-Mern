@@ -20,8 +20,13 @@ const userSchema = Schema({
         type: String,
         required: true
     },
-    phoneNumber: {
-        type: String
+    // phoneNumber: {
+    //     type: String
+    // },
+    role:{
+        type:String,
+        enum:['admin','user'],
+        default:'user'
     }
 });
 
