@@ -1,8 +1,6 @@
 import { LoginSucess, LOGIN_FAIL, RegisterSucess, REGISTER_FAIL, LogoutSucess, Logout_Fail } from "../actionTypes/authTypes";
 import {UserServer, config} from "../../config/http";
 import axios from "axios"
-import { useNavigate } from "react-router-dom";
-
 
 const login = (data) => async (dispatch) => {
     // const navigate  = useNavigate();
@@ -14,7 +12,8 @@ const login = (data) => async (dispatch) => {
         })
         const user ={role:res.data.role, token :res.data.token}
         localStorage.setItem("user", JSON.stringify(user));
-        // navigate("/home");
+       
+        // alert(res.data.message)
     } catch (error) {
         dispatch({
             type: LOGIN_FAIL,
@@ -31,6 +30,7 @@ const register = (data) => async (dispatch) => {
             type: RegisterSucess,
             payload: res.data
         })
+        alert(res.data.message)
     } catch (error) {
         dispatch({
             type: REGISTER_FAIL,
